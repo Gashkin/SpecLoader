@@ -28,6 +28,22 @@ function inside(root, filename) {
     !relative.startsWith('..' + path.sep);
 }
 
+function markdownPathSegment(value) {
+  return encodeURIComponent(value).replace(/[()]/g, char => '%' + char.charCodeAt(0).toString(16));
+}
+
+function checkSuccessors(claim, claims) {
+  const seen = new Set();
+  let current = claim;
+  while (current.state === 'superseded') {
+    requireThat(!seen.has(current.id), 'Cyclic supersession at ' + current.id);
+    seen.add(current.id);
+    current = claims.get(current.supersededBy);
+    requireThat(current, 'Missing superseding claim');
+  }
+  requireThat(current.state === 'decision', 'Supersession must reach a decision');
+}
+
 async function render(seedFile, outputFile) {
   const seedPath = await realpath(seedFile);
   const root = path.dirname(seedPath);
@@ -56,7 +72,7 @@ async function render(seedFile, outputFile) {
         'Capture digest mismatch for ' + source.id);
       inputs.add(location);
       const relative = path.relative(path.dirname(output), location).split(path.sep);
-      link = ' · [captured excerpt](' + relative.map(encodeURIComponent).join('/') + ')';
+      link = ' · [captured excerpt](' + relative.map(markdownPathSegment).join('/') + ')';
     } else {
       requireThat(source.file === undefined && source.sha256 === undefined, 'Unavailable capture declares bytes');
     }
@@ -79,8 +95,7 @@ async function render(seedFile, outputFile) {
     if (refs.some(ref => ref.coverage !== 'complete')) requiredText(claim.qualification, 'claim qualification');
     if (refs.every(ref => ref.coverage === 'unavailable')) requireThat(claim.state === 'unknown', 'Missing evidence');
     if (claim.state === 'superseded') {
-      const replacement = claims.get(claim.supersededBy);
-      requireThat(replacement && replacement.state === 'decision', 'Missing superseding decision');
+      checkSuccessors(claim, claims);
     } else {
       requireThat(claim.supersededBy === undefined, 'Unexpected supersession');
     }
