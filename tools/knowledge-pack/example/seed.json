@@ -1,0 +1,29 @@
+{
+  "format": 1,
+  "title": "Atlas release window",
+  "version": "1",
+  "captured": "2026-10-05",
+  "reviewedBy": "Example curator (synthetic)",
+  "reviewedOn": "2026-10-05",
+  "sources": [
+    {
+      "id": "record",
+      "coverage": "complete",
+      "locator": "Synthetic release decision",
+      "revision": "fixture v1",
+      "url": "https://example.org/atlas/decision",
+      "file": "decision.txt",
+      "sha256": "41f3a405de210cc60ef306e7e939fcf01e7b55ce3e6f0286e5950921247844d1"
+    }
+  ],
+  "claims": [
+    {
+      "id": "release",
+      "state": "decision",
+      "text": "The team adopted a weekly release window.",
+      "sources": [
+        "record"
+      ]
+    }
+  ]
+}

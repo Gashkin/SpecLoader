@@ -17,3 +17,7 @@ SpecLoader is in its initial foundation stage. Product discovery and refinement 
 Changes are developed on short-lived branches and proposed through pull requests targeting `main`. Ger retains product ownership and final merge authority.
 
 No credentials, tokens, passwords or environment-specific secrets belong in this repository.
+
+## Knowledge packs
+
+[Replay a knowledge pack](tools/knowledge-pack/README.md) from a reviewed seed and frozen source excerpts.
