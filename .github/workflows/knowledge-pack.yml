@@ -1,0 +1,25 @@
+name: Knowledge pack replay
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Record runtime and exact revision
+        run: |
+          node --version
+          git rev-parse HEAD
+      - name: Replay from checkout
+        run: node tools/knowledge-pack/replay.mjs --seed tools/knowledge-pack/example/seed.json --out tools/knowledge-pack/example/briefing.md
+      - name: Verify replay and manual refresh cases
+        run: node --test tools/knowledge-pack/replay.test.mjs
