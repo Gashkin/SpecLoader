@@ -56,8 +56,8 @@ test('offline replay, failure preservation and manual cross-source refresh', asy
   const third = 'Synthetic decision: release quarterly.';
   const filename = 'third) decision.txt';
   await writeFile(path.join(v2, filename), third);
-  seed.sources.push({ ...seed.sources[1], id: 'third', locator: 'Third decision',
-    url: 'https://example.org/atlas/third', revision: 'fixture v3', file: filename, sha256: digest(third) });
+  seed.sources.push({ ...seed.sources[1], id: 'third', locator: 'Decision ] entry',
+    url: 'https://example.org/atlas/third)', revision: 'fixture v3', file: filename, sha256: digest(third) });
   seed.claims[1].state = 'superseded';
   seed.claims[1].supersededBy = 'quarterly';
   seed.claims.push({ id: 'quarterly', state: 'decision', text: third, sources: ['third'] });
@@ -66,6 +66,7 @@ test('offline replay, failure preservation and manual cross-source refresh', asy
   const history = await output(v2);
   assert.match(history, /Superseded by quarterly/);
   assert.match(history, /third%29%20decision\.txt/);
+  assert.ok(history.includes('[Decision \\] entry](https://example.org/atlas/third%29)'));
   seed.claims[1].supersededBy = 'release';
   await save();
   replay(v2, false);

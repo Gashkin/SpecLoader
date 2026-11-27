@@ -28,8 +28,8 @@ function inside(root, filename) {
     !relative.startsWith('..' + path.sep);
 }
 
-function markdownPathSegment(value) {
-  return encodeURIComponent(value).replace(/[()]/g, char => '%' + char.charCodeAt(0).toString(16));
+function encodeParentheses(value) {
+  return value.replace(/[()]/g, char => '%' + char.charCodeAt(0).toString(16));
 }
 
 function checkSuccessors(claim, claims) {
@@ -72,12 +72,14 @@ async function render(seedFile, outputFile) {
         'Capture digest mismatch for ' + source.id);
       inputs.add(location);
       const relative = path.relative(path.dirname(output), location).split(path.sep);
-      link = ' · [captured excerpt](' + relative.map(markdownPathSegment).join('/') + ')';
+      link = ' · [captured excerpt](' + relative.map(part => encodeParentheses(encodeURIComponent(part))).join('/') + ')';
     } else {
       requireThat(source.file === undefined && source.sha256 === undefined, 'Unavailable capture declares bytes');
     }
     if (source.coverage !== 'complete') requiredText(source.limitation, 'coverage limitation');
-    evidence.push('- **' + source.id + '** · [' + source.locator + '](' + source.url + ')' + link +
+    const label = source.locator.replace(/[\\\[\]]/g, '\\$&');
+    const destination = encodeParentheses(new URL(source.url).href);
+    evidence.push('- **' + source.id + '** · [' + label + '](' + destination + ')' + link +
       ' · ' + source.revision + ' · ' + source.coverage + (source.limitation ? ' · ' + source.limitation : ''));
   }
 
